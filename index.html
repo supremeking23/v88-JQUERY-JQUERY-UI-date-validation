@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Data Validation</title>
+
+		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" />
+
+		<style>
+			body * {
+				outline: 1px dashed red;
+			}
+			body {
+				font-family: sans-serif;
+			}
+
+			.container {
+				width: 1140px;
+				margin: 0 auto;
+				padding: 20px;
+			}
+			.container h1 {
+				text-align: center;
+			}
+			.form-group {
+				padding: 20px;
+			}
+
+			h3,
+			ul li {
+				margin-bottom: 10px;
+				color: #810000;
+			}
+
+			.form-group * {
+				margin-left: 10px;
+			}
+
+			.ui-widget {
+				font-size: 1rem;
+			}
+
+			input[type="submit"] {
+				background: #3c415c;
+				padding: 10px;
+				border-color: #3c415c;
+				color: #fff;
+			}
+		</style>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script>
+			$(document).ready(function () {
+				function checkForErrors() {
+					// e.preventDefault();
+					if ($("#first_name").val() == "") {
+						errorArray.push("First name cannot be blank");
+					}
+
+					if ($("#last_name").val() == "") {
+						errorArray.push("Last name cannot be blank");
+					}
+
+					if ($("#age").val() == "") {
+						errorArray.push("Age cannot be blank");
+					}
+
+					if ($("#datepicker").val() == "") {
+						errorArray.push("Reservation date cannot be blank");
+					}
+				}
+
+				var errorArray = [];
+				$("#radio").controlgroup();
+				$("#age").spinner({ min: 0 });
+				$("#datepicker").datepicker({ dateFormat: "dd-mm-yy" }).val();
+				$("#dialog").dialog({ autoOpen: false, position: { my: "middle top", at: "middle top", of: ".main-content" } });
+				$("#dialog").on("dialogclose", function (event, ui) {
+					$("ul").empty();
+				});
+
+				$("form").submit(function (e) {
+					checkForErrors();
+					var serialize_data = $(this).serialize();
+					console.log(serialize_data);
+					$(this).trigger("reset");
+					for (var i = 0; i < errorArray.length; i++) {
+						$("ul").append(`<li>${errorArray[i]}</li>`);
+					}
+					if (errorArray.length > 0) {
+						$("#dialog").dialog("open");
+					}
+
+					errorArray = [];
+					return false;
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Welcome to the Coding dojo plan a Cruise!</h1>
+			<div class="main-content">
+				<form action="" method="POST">
+					<div class="form-group">
+						<label for="first_name">First Name</label>
+						<input type="text" id="first_name" name="first_name" value="" />
+					</div>
+
+					<div class="form-group">
+						<label for="last_name">Last Name</label>
+						<input type="text" id="last_name" name="last_name" />
+					</div>
+
+					<div class="form-group">
+						<label for="age">Age:</label>
+						<input id="age" name="age" />
+					</div>
+
+					<div id="radio" class="form-group">
+						<input type="radio" id="first-class" value="first-class" name="ticket-type" />
+						<label for="first-class">First Class</label>
+
+						<input type="radio" id="economy" name="ticket-type" value="economy" checked="checked" />
+						<label for="economy">Economy</label>
+
+						<input type="radio" id="sakalam" name="ticket-type" value="sakalam" />
+						<label for="sakalam">Sakalam</label>
+					</div>
+
+					<div class="form-group">
+						<label for="datepicker">Date</label>
+						<input type="text" name="datepicker" value="" id="datepicker" placeholder="Please select a date" />
+					</div>
+
+					<div class="form-group">
+						<input type="submit" value="Check Dates" />
+					</div>
+				</form>
+
+				<div id="dialog" title="Error on Form Submission">
+					<h3>Please fix the following errors:</h3>
+					<ul id="errors"></ul>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
