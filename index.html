@@ -10,10 +10,14 @@
 
 		<style>
 			body * {
-				outline: 1px dashed red;
+				/* outline: 1px dashed red; */
 			}
 			body {
 				font-family: sans-serif;
+				background: url(https://i.ytimg.com/vi/P5cn91ekXR0/maxresdefault.jpg);
+				background-repeat: no-repeat;
+				background-size: cover;
+				color: #fff;
 			}
 
 			.container {
@@ -28,7 +32,12 @@
 				padding: 20px;
 			}
 
-			h3,
+			.form-group input[type="text"] {
+				padding: 10px;
+				/* width: 100%; */
+				width: 50%;
+			}
+
 			ul li {
 				margin-bottom: 10px;
 				color: #810000;
@@ -53,46 +62,83 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 		<script>
 			$(document).ready(function () {
+				function getDate(element) {
+					var date;
+					try {
+						date = $.datepicker.parseDate(dateFormat, element.value);
+					} catch (error) {
+						date = null;
+					}
+
+					return date;
+				}
+
 				function checkForErrors() {
-					// e.preventDefault();
 					if ($("#first_name").val() == "") {
+						$("#first_name").css("border", "2px solid red");
 						errorArray.push("First name cannot be blank");
 					}
 
 					if ($("#last_name").val() == "") {
+						$("#last_name").css("border", "2px solid red");
 						errorArray.push("Last name cannot be blank");
 					}
 
 					if ($("#age").val() == "") {
+						$("#age").parent().css("border", "2px solid red");
 						errorArray.push("Age cannot be blank");
 					}
 
-					if ($("#datepicker").val() == "") {
-						errorArray.push("Reservation date cannot be blank");
+					if ($("#from").val() == "") {
+						$("#from").css("border", "2px solid red");
+						errorArray.push("From date field cannot be blank");
+					}
+					if ($("#to").val() == "") {
+						$("#to").css("border", "2px solid red");
+						errorArray.push("To date field cannot be blank");
 					}
 				}
 
 				var errorArray = [];
+
+				// initialize widgets
+				var firstname = $("#first_name").val();
+				var dateFormat = "mm/dd/yy";
+				var from = $("#from").datepicker({ defaultDate: "+1week", changeMonth: true, numberOfMonths: 1 });
+				var to = $("#to").datepicker({ defaultDate: "+1week", changeMonth: true, numberOfMonths: 1 });
+				var fromValue = "";
+				var toValue = "";
+				from.on("change", function () {
+					to.datepicker("option", "minDate", getDate(this));
+					fromValue = $("#from").val();
+				});
+				to.on("change", function () {
+					from.datepicker("option", "maxDate", getDate(this));
+					toValue = $("#to").val();
+				});
 				$("#radio").controlgroup();
 				$("#age").spinner({ min: 0 });
-				$("#datepicker").datepicker({ dateFormat: "dd-mm-yy" }).val();
 				$("#dialog").dialog({ autoOpen: false, position: { my: "middle top", at: "middle top", of: ".main-content" } });
-				$("#dialog").on("dialogclose", function (event, ui) {
-					$("ul").empty();
-				});
+				// $("#dialog").on("dialogclose", function (event, ui) {
+				// 	$("ul").empty();
+				// });
 
 				$("form").submit(function (e) {
+					$("ul").empty(); // delete all errors upon submitting the form
 					checkForErrors();
 					var serialize_data = $(this).serialize();
 					console.log(serialize_data);
-					$(this).trigger("reset");
 					for (var i = 0; i < errorArray.length; i++) {
 						$("ul").append(`<li>${errorArray[i]}</li>`);
 					}
 					if (errorArray.length > 0) {
-						$("#dialog").dialog("open");
+						$("#dialog h3").text("Please fix the following errors");
+					} else {
+						$("#ui-id-1").attr("title", "Form submission is successful");
+						$("#dialog h3").text(`Thanks ${firstname}. Hi! Your Cruise leaves on ${fromValue} and returns on ${toValue}`);
+						$(this).trigger("reset");
 					}
-
+					$("#dialog").dialog("open");
 					errorArray = [];
 					return false;
 				});
@@ -126,13 +172,18 @@
 						<input type="radio" id="economy" name="ticket-type" value="economy" checked="checked" />
 						<label for="economy">Economy</label>
 
-						<input type="radio" id="sakalam" name="ticket-type" value="sakalam" />
-						<label for="sakalam">Sakalam</label>
+						<!-- <input type="radio" id="sakalam" name="ticket-type" value="sakalam" />
+						<label for="sakalam">Sakalam</label> -->
 					</div>
 
 					<div class="form-group">
-						<label for="datepicker">Date</label>
-						<input type="text" name="datepicker" value="" id="datepicker" placeholder="Please select a date" />
+						<label for="from">From</label>
+						<input type="text" name="from" value="" id="from" placeholder="Please select a date" />
+					</div>
+
+					<div class="form-group">
+						<label for="to">To</label>
+						<input type="text" name="to" value="" id="to" placeholder="Please select a date" />
 					</div>
 
 					<div class="form-group">
@@ -140,8 +191,8 @@
 					</div>
 				</form>
 
-				<div id="dialog" title="Error on Form Submission">
-					<h3>Please fix the following errors:</h3>
+				<div id="dialog" title="Alert !">
+					<h3></h3>
 					<ul id="errors"></ul>
 				</div>
 			</div>
